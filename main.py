@@ -117,5 +117,14 @@ async def update_specialist_phone(id: int, phone_update: PhoneUpdate):
         raise HTTPException(status_code=404, detail="Specialist not found")
     return await get_specialist(id)
 
+
+@app.put("/specialists/{id}/password", response_model=Specialist)
+async def change_specialist_password(id: int, password_update: PasswordUpdate):
+    query = update(specialists).where(specialists.c.id == id).values(password=password_update.password)
+    result = await database.execute(query)
+    if result == 0:
+        raise HTTPException(status_code=404, detail="Specialist not found")
+    return await get_specialist(id)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)
