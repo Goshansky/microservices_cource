@@ -25,3 +25,7 @@ class Client(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EmailUpdate(BaseModel):
+    email: EmailStr
