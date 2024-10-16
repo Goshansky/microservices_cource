@@ -1,6 +1,6 @@
 from sqlalchemy import Table, Column, Integer, String, DateTime, ARRAY, ForeignKey
 from sqlalchemy.sql import func
-from database import metadata
+from app.database.database import metadata
 
 clients = Table(
     "clients",
