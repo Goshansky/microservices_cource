@@ -33,3 +33,7 @@ class EmailUpdate(BaseModel):
 
 class PhoneUpdate(BaseModel):
     phone_number: constr(pattern=r'^\+?1?\d{9,15}$')
+
+
+class PasswordUpdate(BaseModel):
+    password: str
