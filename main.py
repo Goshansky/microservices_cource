@@ -99,5 +99,14 @@ async def get_specialist(id: int):
         raise HTTPException(status_code=404, detail="Specialist not found")
     return specialist
 
+
+@app.put("/specialists/{id}/email", response_model=Specialist)
+async def update_specialist_email(id: int, email_update: EmailUpdate):
+    query = update(specialists).where(specialists.c.id == id).values(email=email_update.email)
+    result = await database.execute(query)
+    if result == 0:
+        raise HTTPException(status_code=404, detail="Specialist not found")
+    return await get_specialist(id)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)
