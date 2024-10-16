@@ -67,10 +67,5 @@ class Specialist(BaseModel):
     specialization: List[SpecializationEnum]
     timestamp: datetime
 
-
     class Config:
         from_attributes = True
-
-
-class EmailUpdate(BaseModel):
-    email: EmailStr
