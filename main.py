@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from database import database, engine, metadata
 from models import clients, specialists, orders
 from schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate, Specialist, SpecialistInput, Order, \
-    OrderInput, OrderStatusEnum, OrderStatusUpdate
+    OrderInput, OrderStatusUpdate
 from datetime import datetime
 import uvicorn
 from contextlib import asynccontextmanager
