@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from database import database, engine, metadata
-from models import clients
-from schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate
+from models import clients, specialists
+from schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate, Specialist, SpecialistInput
 from datetime import datetime
 import uvicorn
 from contextlib import asynccontextmanager
@@ -73,6 +73,31 @@ async def change_client_password(id: int, password_update: PasswordUpdate):
     if result == 0:
         raise HTTPException(status_code=404, detail="Client not found")
     return await get_client(id)
+
+
+@app.post("/specialists", response_model=Specialist)
+async def register_specialist(specialist: SpecialistInput):
+    query = specialists.insert().values(
+        last_name=specialist.last_name,
+        first_name=specialist.first_name,
+        middle_name=specialist.middle_name,
+        email=specialist.email,
+        phone_number=specialist.phone_number,
+        password=specialist.password,
+        specialization=specialist.specialization,
+        timestamp=datetime.utcnow()
+    )
+    specialist_id = await database.execute(query)
+    return {**specialist.dict(), "id": specialist_id, "timestamp": datetime.utcnow()}
+
+
+@app.get("/specialists/{id}", response_model=Specialist)
+async def get_specialist(id: int):
+    query = specialists.select().where(specialists.c.id == id)
+    specialist = await database.fetch_one(query)
+    if not specialist:
+        raise HTTPException(status_code=404, detail="Specialist not found")
+    return specialist
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)
