@@ -29,3 +29,7 @@ class Client(BaseModel):
 
 class EmailUpdate(BaseModel):
     email: EmailStr
+
+
+class PhoneUpdate(BaseModel):
+    phone_number: constr(pattern=r'^\+?1?\d{9,15}$')

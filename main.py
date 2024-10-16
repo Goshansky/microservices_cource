@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from database import database, engine, metadata
 from models import clients
-from schemas import ClientInput, Client, EmailUpdate
+from schemas import ClientInput, Client, EmailUpdate, PhoneUpdate
 from datetime import datetime
 import uvicorn
 from contextlib import asynccontextmanager
@@ -51,6 +51,15 @@ async def get_client(id: int):
 @app.put("/clients/{id}/email", response_model=Client)
 async def update_client_email(id: int, email_update: EmailUpdate):
     query = update(clients).where(clients.c.id == id).values(email=email_update.email)
+    result = await database.execute(query)
+    if result == 0:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return await get_client(id)
+
+
+@app.put("/clients/{id}/phone", response_model=Client)
+async def update_client_phone(id: int, phone_update: PhoneUpdate):
+    query = update(clients).where(clients.c.id == id).values(phone_number=phone_update.phone_number)
     result = await database.execute(query)
     if result == 0:
         raise HTTPException(status_code=404, detail="Client not found")
