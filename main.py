@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from database import database, engine, metadata
-from models import clients, specialists
-from schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate, Specialist, SpecialistInput
+from models import clients, specialists, orders
+from schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate, Specialist, SpecialistInput, Order, \
+    OrderInput, OrderStatusEnum, OrderStatusUpdate
 from datetime import datetime
 import uvicorn
 from contextlib import asynccontextmanager
@@ -125,6 +126,38 @@ async def change_specialist_password(id: int, password_update: PasswordUpdate):
     if result == 0:
         raise HTTPException(status_code=404, detail="Specialist not found")
     return await get_specialist(id)
+
+
+@app.post("/orders", response_model=Order)
+async def create_order(order: OrderInput):
+    query = orders.insert().values(
+        client_pk=order.client_pk,
+        specialist_pk=order.specialist_pk,
+        specialization=order.specialization,
+        status=order.status,
+        comment=order.comment,
+        timestamp=datetime.utcnow()
+    )
+    order_id = await database.execute(query)
+    return {**order.dict(), "id": order_id, "timestamp": datetime.utcnow()}
+
+
+@app.get("/orders/{id}", response_model=Order)
+async def get_order(id: int):
+    query = orders.select().where(orders.c.id == id)
+    order = await database.fetch_one(query)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+
+@app.put("/orders/{id}/status", response_model=Order)
+async def update_order_status(id: int, status_update: OrderStatusUpdate):
+    query = update(orders).where(orders.c.id == id).values(status=status_update.status)
+    result = await database.execute(query)
+    if result == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return await get_order(id)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)

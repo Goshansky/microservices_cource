@@ -69,3 +69,38 @@ class Specialist(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class OrderStatusEnum(str, Enum):
+    pending = 'new'
+    in_progress = 'in_work'
+    completed = 'done'
+    canceled = 'cancel'
+
+
+class OrderInput(BaseModel):
+    client_pk: int
+    specialist_pk: int
+    specialization: SpecializationEnum
+    status: OrderStatusEnum
+    comment: str
+
+    class Config:
+        from_attributes = True
+
+
+class Order(BaseModel):
+    id: int
+    client_pk: int
+    specialist_pk: int
+    specialization: SpecializationEnum
+    status: OrderStatusEnum
+    comment: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class OrderStatusUpdate(BaseModel):
+    status: OrderStatusEnum
