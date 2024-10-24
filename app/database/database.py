@@ -1,7 +1,6 @@
 from databases import Database
+from ..config.config import DATABASE_URL
 from sqlalchemy import create_engine, MetaData
-
-DATABASE_URL = "postgresql://user:password@localhost:5432/callmasters"
 
 database = Database(DATABASE_URL)
 metadata = MetaData()
