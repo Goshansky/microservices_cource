@@ -1,9 +1,9 @@
 from fastapi import HTTPException, APIRouter
 from app.database.database import database
-from app.models.models import clients
-from app.schemas.schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate
+from app.models.models import clients, orders
+from app.schemas.schemas import ClientInput, Client, EmailUpdate, PhoneUpdate, PasswordUpdate, Order
 from datetime import datetime
-from sqlalchemy import update
+from sqlalchemy import update, select
 
 
 router = APIRouter()
@@ -58,3 +58,12 @@ async def change_client_password(id: int, password_update: PasswordUpdate):
     if result == 0:
         raise HTTPException(status_code=404, detail="Client not found")
     return await get_client(id)
+
+
+@router.get("/clients/{client_id}/orders", response_model=list[Order])
+async def get_client_orders(client_id: int):
+    query = select(orders).where(orders.c.client_pk == client_id)
+    client_orders = await database.fetch_all(query)
+    if not client_orders:
+        raise HTTPException(status_code=404, detail="No orders found for this client")
+    return client_orders
